@@ -4,6 +4,7 @@
 #Made by Tzara Northcut (@Mecknavorz)
 import os, fileinput
 from PIL import Image
+import cv2
 
 #using this to unpack the TIFF pictures so I can reoganize
 #and give them simple labels
@@ -25,3 +26,10 @@ def mass_rename(target, name):
         rname = target + "/" + rname
         t = target + "/" + f
         os.rename(t, rname)
+
+#add a rotation to pictures and duplicate them
+#values should be an array of angles to duplicate the images with
+#it's not much but it's hopeful enough to help pad out our small dataset
+#def expand_data(target, values):
+    #for num, f in enumerate(os.listdir(target)):
+        

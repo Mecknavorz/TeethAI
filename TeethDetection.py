@@ -6,6 +6,8 @@ import numpy as np #helps with image processing
 import os #for system calls
 import cv2 #the convolutional netwrok libary iirc CHECK THIS
 from tensorflow import keras #used for a lot of the heavy lifting in terms of CNN stuff
+from sklearn.metrics import roc_curve
+from sklearn.metrics import auc
 #these two are for help with the dataset
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.preprocessing import image
@@ -15,7 +17,15 @@ import matplotlib.pyplot as plt
 """
 dataset setup
 """
-#NEED TO DO THIS THURSDAY FOR SURE!
+#rescale the images some
+train = ImageDataGenerator(rescale=1/255)
+test = ImageDataGenerator(rescale=1/255)
+
+#set up stuff for the training set,
+#obv change the link to the destination to where your datasets are stored
+train_dataset = train.flow_from_directory("/home/tzara/SeniorDesign/dataset/binary-teeth/train", target_size=(200,200), batch_size=32, class_mode="binary")
+test_dataset = test.flow_from_directory("/home/tzara/SeniorDesign/dataset/binary-teeth/test", target_size=(200,200), batch_size=32, class_mode="binary")
+
 
 
 """
@@ -53,17 +63,17 @@ training and validation stuff
 #actualy train the model
 #steps per epoch should be the # of training images divided by batch size
 #need to double check current values, especially once I remake the dataset
+history = model.fit(train_dataset, steps_per_epoch=20, epochs=10, validation_data=test_dataset, validation_steps=8)
 #mode.fit_generator(training_set, steps_per_epoch=250, epocs=10, validation_data=test_set)
-history = model.fit(train_generator, steps_per_epoch=250, epochs=10, validation_data=validation_generator, validation_steps=8)
 
 #evaluate the accuracy of the model
-model.evaluate(validation_generator)
-STEP_SIZE_TEST = validation_generator.n//validation_generator.batch_siz
-validation_generator.reset()
-prediction = model.predict(validation_generator, verbose=1) #verbose =1 so we can debug n'stuff
+model.evaluate(test_dataset)
+STEP_SIZE_TEST = test_dataset.n//test_dataset.batch_size
+test_dataset.reset()
+prediction = model.predict(test_dataset, verbose=1) #verbose =1 so we can debug n'stuff
 
 #compute false positive and true positive rate so we can figure out the ROC curve
-falsepr, truepr = roc_curve(validation_generator.classes, prediction)
+falsepr, truepr = roc_curve(test_dataset.classes, prediction)
 roc_auc = auc(falsepr, turepr)
 plt.figure()
 lw = 2 #since we're constrasting against a constant, we only need a constant
