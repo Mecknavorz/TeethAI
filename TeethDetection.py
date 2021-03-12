@@ -73,13 +73,12 @@ test_dataset.reset()
 prediction = model.predict(test_dataset, verbose=1) #verbose =1 so we can debug n'stuff
 
 #compute false positive and true positive rate so we can figure out the ROC curve
-falsepr, truepr = roc_curve(test_dataset.classes, prediction)
-roc_auc = auc(falsepr, turepr)
+#the thresh vairable is something that ROC outputs but we don't use so it's just there to avoid an error
+fpr, tpr, thresh = roc_curve(test_dataset.classes, prediction)
+roc_auc = auc(fpr, tpr)
 plt.figure()
 lw = 2 #since we're constrasting against a constant, we only need a constant
-plt.plot(falsepr, truepr, color="red")
-#set up the labels for the plot
-lw = lw, label="ROC curve (Area = %0.2f)" % roc_auc
+plt.plot(fpr, tpr, color="red", lw = lw, label="ROC curve (Area = %0.2f)" % roc_auc)
 #plot the graph
 plt.plot([0,1], [0,1], color="blue", lw=lw, linestyle="--")
 #bounds for the graph
