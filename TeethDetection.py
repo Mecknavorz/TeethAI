@@ -102,10 +102,10 @@ def classify(file):
     img = image.load_img(file, target_size=(200,200)) #load the image
     plt.imshow(img) #shwo the image
     #set up the axis
-    Y = image.img_to_array(img1)
+    Y = image.img_to_array(img)
     X = np.expand_dims(Y, axis=0)
     #actually make the predicton
-    guess = model.predict(x)
+    guess = model.predict(X)
     print(guess) #tell what we think it is
     if guess == 1:
         plt.xlabel("Teeth! :D :D",fontsize=30)
