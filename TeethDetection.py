@@ -94,9 +94,25 @@ plt.legend(loc="lower right")
 #show us the money!
 plt.show()
 
+
+
+
 """
-Prediciton stuff
+probably copy this to the next ai
 """
+#save and convert the file to tflite
+def save_and_store(filepath, name):
+    #to_export = tf.keras.Model(model)
+    file1 = filepath + "/" + name   #for saving the non-lite model
+    name2 = name + ".tflite"        #for swaving the converted model
+    model.save(file1) #save our current model
+    converter =tf.lite.TFLiteConverter.from_saved_model(file1) #load the model
+    tflite_model = converter.convert() #actually convert it
+    #save our new tf lite file
+    with open(name2, 'wb') as f:
+        f.write(tflite_model)
+    
+#call to make prediction on a file
 def classify(file):
     #this line might not work and if it doesn't reimplement w/ sys/os commands instead of Keras
     img = image.load_img(file, target_size=(200,200)) #load the image
