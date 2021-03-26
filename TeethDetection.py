@@ -108,9 +108,15 @@ def save_and_store(filepath, name):
     model.save(file1) #save our current model
     converter =tf.lite.TFLiteConverter.from_saved_model(file1) #load the model
     tflite_model = converter.convert() #actually convert it
+    #tflite_model.export(export_dir=filepath)
     #save our new tf lite file
     with open(name2, 'wb') as f:
         f.write(tflite_model)
+    #try and generate labels.txt
+    with open('labels.txt', 'w') as f2:
+        for label in labels:
+            f2.write(label)
+            f2.write('\n')
     
 #call to make prediction on a file
 def classify(file):

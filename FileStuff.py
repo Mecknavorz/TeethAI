@@ -4,6 +4,7 @@
 #Made by Tzara Northcut (@Mecknavorz)
 import os, fileinput
 from PIL import Image
+import glob #used for iterating through files?
 import cv2
 
 #using this to unpack the TIFF pictures so I can reoganize
