@@ -1,9 +1,16 @@
 #basic AI to just give a yes or no if teeth are in the picture
 #made by Tzara Northcut (@Mecknavorz)
 #impors and stuff
+mlseed = 666
+import numpy as np
+from numpy.random import seed
+np.random.seed(mlseed)
+import random as rn
+rn.seed(mlseed)
 import tensorflow as tf
-import numpy as np #helps with image processing
+tf.random.set_seed(mlseed)
 import os #for system calls
+os.environ['PYTHONHASHSEED']=str(mlseed)
 import cv2 #the convolutional netwrok libary iirc CHECK THIS
 from tensorflow import keras #used for a lot of the heavy lifting in terms of CNN stuff
 from sklearn.metrics import roc_curve
@@ -23,8 +30,8 @@ test = ImageDataGenerator(rescale=1/255)
 
 #set up stuff for the training set,
 #obv change the link to the destination to where your datasets are stored
-train_dataset = train.flow_from_directory("/home/tzara/SeniorDesign/dataset/binary-teeth/train", target_size=(200,200), batch_size=32, class_mode="binary")
-test_dataset = test.flow_from_directory("/home/tzara/SeniorDesign/dataset/binary-teeth/test", target_size=(200,200), batch_size=32, class_mode="binary")
+train_dataset = train.flow_from_directory("/home/tzara/SeniorDesign/dataset/binary-teeth/train", target_size=(200,200), batch_size=12, class_mode="binary")
+test_dataset = test.flow_from_directory("/home/tzara/SeniorDesign/dataset/binary-teeth/test", target_size=(200,200), batch_size=12, class_mode="binary")
 
 
 
@@ -63,7 +70,7 @@ training and validation stuff
 #actualy train the model
 #steps per epoch should be the # of training images divided by batch size
 #need to double check current values, especially once I remake the dataset
-history = model.fit(train_dataset, steps_per_epoch=20, epochs=10, validation_data=test_dataset, validation_steps=8)
+history = model.fit(train_dataset, steps_per_epoch=18, epochs=10, validation_data=test_dataset, validation_steps=10)
 #mode.fit_generator(training_set, steps_per_epoch=250, epocs=10, validation_data=test_set)
 
 #evaluate the accuracy of the model
