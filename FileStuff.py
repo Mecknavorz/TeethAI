@@ -4,8 +4,10 @@
 #Made by Tzara Northcut (@Mecknavorz)
 import os, fileinput
 from PIL import Image
+from PIL import ImageOps
 import glob #used for iterating through files?
 import cv2
+#from scipi import ndimage, misc
 
 #using this to unpack the TIFF pictures so I can reoganize
 #and give them simple labels
@@ -28,9 +30,29 @@ def mass_rename(target, name):
         t = target + "/" + f
         os.rename(t, rname)
 
-#add a rotation to pictures and duplicate them
-#values should be an array of angles to duplicate the images with
-#it's not much but it's hopeful enough to help pad out our small dataset
-#def expand_data(target, values):
-    #for num, f in enumerate(os.listdir(target)):
-        
+#mirror all the images
+'''
+mirror("/home/tzara/SeniorDesign/dataset/binary-teeth/train/no_teeth",
+"/home/tzara/SeniorDesign/dataset/binary-teeth2/train/no_teeth")
+'''
+def mirror(source, target):
+    for file in os.listdir(source):
+        #establish filepaths to use
+        openImg = os.path.join(source, file)
+        save2 = os.path.join(target, "flip_"+file)
+        #open the file
+        img = Image.open(openImg)
+        #mirror
+        img = ImageOps.mirror(img)
+        #save
+        img.save(save2)
+        #print(save2)
+        #cv2.imwrite(os.path.join(target, file), flipped)
+'''
+def mirror(target, output):
+    for file in os.listdir(target):
+        input_path = os.path.join(target, file)
+        file_to_mirror = ndimage.imread(input_path)
+
+        flipped = ndimage.
+'''
