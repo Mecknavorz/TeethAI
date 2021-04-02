@@ -40,19 +40,25 @@ def mirror(source, target):
         #establish filepaths to use
         openImg = os.path.join(source, file)
         save2 = os.path.join(target, "flip_"+file)
-        #open the file
-        img = Image.open(openImg)
-        #mirror
-        img = ImageOps.mirror(img)
-        #save
-        img.save(save2)
-        #print(save2)
-        #cv2.imwrite(os.path.join(target, file), flipped)
-'''
-def mirror(target, output):
-    for file in os.listdir(target):
-        input_path = os.path.join(target, file)
-        file_to_mirror = ndimage.imread(input_path)
+        img = Image.open(openImg) #open the file
+        img = ImageOps.mirror(img) #mirror
+        img.save(save2) #save
 
-        flipped = ndimage.
-'''
+#since some of the image files don't have masks generate blank ones for em
+#images is the image folder for the dataset
+#masks is the folder with the masks which we will save too
+#template is the image to copy and rename for out new masks
+def fill_gaps(images, masks, template):
+    #arays to store the names of the files so we can compare
+    #and see what's missing
+    masknames = []
+    imagenames = []
+    #iterate over both folders and compile the lits
+    for f in os.listdir(images):
+        masknames.append(f)
+    for g in os.listdir(masks):
+        masknames.append(g)
+    #figure out whjat names aren't in the mask file
+    for i in masknames:
+        if i not in masknames:
+            

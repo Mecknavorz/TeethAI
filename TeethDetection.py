@@ -70,7 +70,7 @@ training and validation stuff
 #actualy train the model
 #steps per epoch should be the # of training images divided by batch size
 #need to double check current values, especially once I remake the dataset
-history = model.fit(train_dataset, steps_per_epoch=18, epochs=10, validation_data=test_dataset, validation_steps=10)
+history = model.fit(train_dataset, steps_per_epoch=36, epochs=10, validation_data=test_dataset, validation_steps=13)
 #mode.fit_generator(training_set, steps_per_epoch=250, epocs=10, validation_data=test_set)
 
 #evaluate the accuracy of the model
