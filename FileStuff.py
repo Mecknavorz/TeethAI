@@ -12,11 +12,13 @@ import cv2
 #using this to unpack the TIFF pictures so I can reoganize
 #and give them simple labels
 #source is where to open the files from, destination is where to put them
-def unpack_tiffs(target, destination):
+def unpack_tiffs(target):
     tifs = os.listdir(target) #get all the files in the directory
     for f in tifs:
         #stuff to extract the individual photos from the tif
-        print(f)
+        splits = f.split("_", 1)
+        nname = splits[0] + ".png"
+        print(nname)
         
 #mass rename is just to rename all files in a folder sequentially
 #give all files the name followed by a number
@@ -39,10 +41,19 @@ def mirror(source, target):
     for file in os.listdir(source):
         #establish filepaths to use
         openImg = os.path.join(source, file)
-        save2 = os.path.join(target, "flip_"+file)
+        splits = file.split("_", 1) #unclutter filename
+        save2 = os.path.join(target, split[0]+"m.png")
         img = Image.open(openImg) #open the file
         img = ImageOps.mirror(img) #mirror
         img.save(save2) #save
+
+#unclutter the names
+def shorten_names(target):
+    for f in os.listdir(target):
+        splits = f.split("_", 1)
+        nname = splits[0] + ".png"
+        os.rename(f, nname)
+        
 
 #since some of the image files don't have masks generate blank ones for em
 #images is the image folder for the dataset
