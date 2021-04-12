@@ -48,7 +48,7 @@ from tensorflow.keras.preprocessing import image
 #for plotting and giving us visual feedback w/the training process
 import matplotlib
 import matplotlib.pyplot as plt
-%matplotlib linline
+#%matplotlib linline
 
 #for drawing on the images
 from PIL import Image
