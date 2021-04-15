@@ -41,18 +41,29 @@ def mirror(source, target):
     for file in os.listdir(source):
         #establish filepaths to use
         openImg = os.path.join(source, file)
-        splits = file.split("_", 1) #unclutter filename
-        save2 = os.path.join(target, split[0]+"m.png")
+        splits = file.split(".", 1) #unclutter filename
+        save2 = os.path.join(target, splits[0]+"m.png")
         img = Image.open(openImg) #open the file
         img = ImageOps.mirror(img) #mirror
         img.save(save2) #save
 
 #unclutter the names
 def shorten_names(target):
+    #print(target)
     for f in os.listdir(target):
         splits = f.split("_", 1)
-        nname = splits[0] + ".png"
-        os.rename(f, nname)
+        nname = "" #the var we'll use to store new names
+        if not splits[0].endswith(".png"):
+            nname = splits[0] + ".png"
+        else:
+            nname = splits[0]
+        #print(nname)
+        #make the full file paths
+        f2 = target + f
+        nname2 = target + nname
+        #print("target: " + f2)
+        #print("new: " + nname2)
+        os.rename(f2, nname2)
         
 
 #since some of the image files don't have masks, delete them
@@ -72,4 +83,4 @@ def fill_gaps(images, masks):
     for i in imagenames:
         if i not in masknames:
             #delete the file if there is no mask for it
-            
+            os.remove(images + i)
