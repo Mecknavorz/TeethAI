@@ -27,7 +27,7 @@ os.environ['PYTHONHASHSEED']=str(mlseed) #more seed control
 
 #for downlading the images
 import matplotlib.pyplot as plt
-import tempfile
+import tempfile #don't know if I need this
 from six.moves.urllib.request import urlopen
 from six import BytesID
 
@@ -91,24 +91,25 @@ def draw_bounding_box_on_image(image, ymin, xmin, ymax, xmax, color, font, thick
     text_bottom -= text_height - 2 * margin
 
 def draw_boxes(image, boxes, class_names, scores, max_boxes=10, min_score=0.1):
-  #Overlay labeled boxes on an image with formatted scores and label names
-  colors = list(ImageColor.colormap.values())
+    #Overlay labeled boxes on an image with formatted scores and label names
+    colors = list(ImageColor.colormap.values())
 
-  try:
-    font = ImageFont.truetype("/usr/share/fonts/truetype/liberation/LiberationSansNarrow-Regular.ttf", 25)
-  except IOError:
-    print("Font not found, using default font.")
-    font = ImageFont.load_default()
+    #this is for the font stuff, might not work on linux?
+    try:
+        font = ImageFont.truetype("/usr/share/fonts/truetype/liberation/LiberationSansNarrow-Regular.ttf", 25)
+    except IOError:
+        print("Font not found, using default font.")
+        font = ImageFont.load_default()
 
-  for i in range(min(boxes.shape[0], max_boxes)):
-    if scores[i] >= min_score:
-      ymin, xmin, ymax, xmax = tuple(boxes[i])
-      display_str = "{}: {}%".format(class_names[i].decode("ascii"), int(100 * scores[i]))
-      color = colors[hash(class_names[i]) % len(colors)]
-      image_pil = Image.fromarray(np.uint8(image)).convert("RGB")
-      draw_bounding_box_on_image(image_pil, ymin, xmin, ymax, xmax, color, font, display_str_list=[display_str])
-      np.copyto(image, np.array(image_pil))
-  return image
+    for i in range(min(boxes.shape[0], max_boxes)):
+        if scores[i] >= min_score:
+            ymin, xmin, ymax, xmax = tuple(boxes[i])
+            display_str = "{}: {}%".format(class_names[i].decode("ascii"), int(100 * scores[i]))
+            color = colors[hash(class_names[i]) % len(colors)]
+            image_pil = Image.fromarray(np.uint8(image)).convert("RGB")
+            draw_bounding_box_on_image(image_pil, ymin, xmin, ymax, xmax, color, font, display_str_list=[display_str])
+            np.copyto(image, np.array(image_pil))
+    return image
 
 
 '''
@@ -119,30 +120,31 @@ actually use the module
 image_url = "https://upload.wikimedia.org/wikipedia/commons/6/60/Naxos_Taverna.jpg" 
 downloaded_image_path = download_and_resize_image(image_url, 1280, 856, True)
 
+#this is the code that actually determines the mode we use
+#
 module_handle = "https://tfhub.dev/google/faster_rcnn/openimages_v4/inception_resnet_v2/1"
 detector = hub.load(module_handle).signatures['default']
 
 def load_img(path):
-  img = tf.io.read_file(path)
-  img = tf.image.decode_jpeg(img, channels=3)
-  return img
+    img = tf.io.read_file(path)
+    img = tf.image.decode_jpeg(img, channels=3)
+    return img
 
 def run_detector(detector, path):
-  img = load_img(path)
-  converted_img  = tf.image.convert_image_dtype(img, tf.float32)[tf.newaxis, ...]
-  start_time = time.time()
-  result = detector(converted_img)
-  end_time = time.time()
-  result = {key:value.numpy() for key,value in result.items()}
+    img = load_img(path)
+    converted_img  = tf.image.convert_image_dtype(img, tf.float32)[tf.newaxis, ...]
+    start_time = time.time()
+    result = detector(converted_img)
+    end_time = time.time()
+    result = {key:value.numpy() for key,value in result.items()}
 
-  print("Found %d objects." % len(result["detection_scores"]))
-  print("Inference time: ", end_time-start_time)
+    print("Found %d objects." % len(result["detection_scores"]))
+    print("Inference time: ", end_time-start_time)
 
-  image_with_boxes = draw_boxes(img.numpy(), result["detection_boxes"], result["detection_class_entities"], result["detection_scores"])
-  display_image(image_with_boxes)
+    image_with_boxes = draw_boxes(img.numpy(), result["detection_boxes"], result["detection_class_entities"], result["detection_scores"])
+    display_image(image_with_boxes)
 
 #run_detector(detector, downloaded_image_path)
-
 
 
 '''
