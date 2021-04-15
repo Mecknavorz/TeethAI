@@ -55,21 +55,21 @@ def shorten_names(target):
         os.rename(f, nname)
         
 
-#since some of the image files don't have masks generate blank ones for em
+#since some of the image files don't have masks, delete them
 #images is the image folder for the dataset
-#masks is the folder with the masks which we will save too
-#template is the image to copy and rename for out new masks
-def fill_gaps(images, masks, template):
+#masks is the folder with the masks which we will use to compare
+def fill_gaps(images, masks):
     #arays to store the names of the files so we can compare
     #and see what's missing
     masknames = []
     imagenames = []
     #iterate over both folders and compile the lits
     for f in os.listdir(images):
-        masknames.append(f)
+        imagenames.append(f)
     for g in os.listdir(masks):
         masknames.append(g)
-    #figure out whjat names aren't in the mask file
-    for i in masknames:
+    #figure out what names aren't in the mask file
+    for i in imagenames:
         if i not in masknames:
+            #delete the file if there is no mask for it
             
