@@ -10,6 +10,8 @@ import cv2
 import matplotlib
 import matplotlib.pyplot as plt
 from object_detection.utils import dataset_util
+import tensorflow.compat.v1 as tf
+
 #from scipi import ndimage, misc
 
 #using this to unpack the TIFF pictures so I can reoganize
@@ -124,11 +126,11 @@ flags.DEFINE_string('output_path', '', 'Path to output TFRecord')
 FLAGS = flags.FLAGS
 
 
-def create_tf_example(target, bounding, imgDims):
+def create_tf_example(target, imgBytes, bounding, imgDims):
     height = imgDims[0] # Image height
     width = imgDims[1] # Image width
     filename = target # Filename of the image. Empty if image is not from file
-    encoded_image_data = None # Encoded image bytes
+    encoded_image_data = imgBytes # Encoded image bytes
     image_format = b'png' # b'jpeg' or b'png'
 
     #arrays in which we feed the data into the tfrecord
@@ -168,11 +170,25 @@ def create_tf_example(target, bounding, imgDims):
 #might need an output folder?
 def make_tfrecord(masks, images):
     writer = tf.python_io.TFRecordWriter(FLAGS.output_path)
-    #TODO(user): Write code to read in your dataset to examples variable
     #go over each of the files and figure out what we need 
-    for example in examples:
-        bounding = make_boxes(example)
+    for example in os.listdir():
+        '''since the mask and the pictures have the same names
+        we only know the name of one in order to operate on both
+        it's simply a matter of adjusting the path (which are
+        provided as the input'''
+        #make bounding boxes for our image based off the mask
+        maskpath = os.path.join(masks, example)
+        bounding = make_boxes(maskpath)
+        #make the byte data based off the actual image not the mask
+        impath = os.path.join(images, example)
+        imgBytes = []
+        with open(impath, "rb") as image:
+            f = image.read()
+            imgBytes = bytearray(f)
+            #ALSO GET THE IMAGE DIMENSIONS HERE!!!!!!
+
+        
         #I need to checkif the w/h we feed in is what we start with or scale to
-        tf_example = create_tf_example(example, bounding, imgDims)
+        tf_example = create_tf_example(example, imgBytes, bounding, imgDims)
         writer.write(tf_example.SerializeToString())
     writer.close()
