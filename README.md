@@ -7,9 +7,6 @@ a small python file with little commands to help edit files for managing the dat
 ## TeethDetection.py
 the CNN used to binary classify if teeth are in the pic or not (currently empty, will fill out tommorrow)
 
-## Test_Model and model.tflite
-just some saved test models used for testing the tensorflow integration in the app
-
 ## TeethSeg.py
 the teeth segmentation AI
 
