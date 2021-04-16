@@ -9,6 +9,7 @@ import glob #used for iterating through files?
 import cv2
 import matplotlib
 import matplotlib.pyplot as plt
+from object_detection.utils import dataset_util
 #from scipi import ndimage, misc
 
 #using this to unpack the TIFF pictures so I can reoganize
@@ -86,6 +87,7 @@ def fill_gaps(images, masks):
         if i not in masknames:
             #delete the file if there is no mask for it
             os.remove(images + i)
+
 '''
 THIS MAY BE THE MOST IMPORTANT FUNCTION IN THIS STUPID FUCKING CODE
 it turns the masks into bounding boxes, because we should've made those instead
@@ -95,6 +97,7 @@ worked better.
 #make bounding boxes for the teeth
 def make_boxes(filepath):
     img = cv2.imread(filepath)
+    tbr = [] #array containing the bounding boxes for the blobs
     
     # Threshold the image to extract only objects that are not black
     # You need to use a one channel image, that's why the slice to get the first layer
@@ -108,16 +111,68 @@ def make_boxes(filepath):
     # Loop through your contours calculating the bounding rectangles and plotting them
     for c in contours:
         x, y, w, h = cv2.boundingRect(c) #this is the only part we really need
-        cv2.rectangle(output, (x,y), (x+w, y+h), (0, 0, 255), 2)
-    # Display the output image
-    #b,g,r = cv2.split(output)
-    #frame_rgb = cv2.merge((r,g,b))
-    #plt.imshow(frame_rgb)
-    #plt.title('Boxes! :D :D')
-    plt.imshow(cv2.cvtColor(output, cv2.COLOR_BGR2RGB))
-    plt.show()
-
-#tfrecord maker
-#def make_record(target, dest):
+        tbr.append([x, y, (x-w), (y-h)])
+        #cv2.rectangle(output, (x,y), (x+w, y+h), (0, 0, 255), 2)
+    #print(tbr)
+    return tbr
     
-            
+
+#tfrecord maker stuff, taken from the models tensorflow repository
+#modified to work for our dataset specfically
+flags = tf.app.flags
+flags.DEFINE_string('output_path', '', 'Path to output TFRecord')
+FLAGS = flags.FLAGS
+
+
+def create_tf_example(target, bounding, imgDims):
+    height = imgDims[0] # Image height
+    width = imgDims[1] # Image width
+    filename = target # Filename of the image. Empty if image is not from file
+    encoded_image_data = None # Encoded image bytes
+    image_format = b'png' # b'jpeg' or b'png'
+
+    #arrays in which we feed the data into the tfrecord
+    xmins = [] # List of normalized left x coordinates in bounding box (1 per box)
+    xmaxs = [] # List of normalized right x coordinates in bounding box (1 per box)
+    ymins = [] # List of normalized top y coordinates in bounding box (1 per box)
+    ymaxs = [] # List of normalized bottom y coordinates in bounding box (1 per box)
+    classes_text = [] # List of string class name of bounding box (1 per box)
+    classes = [] # List of integer class id of bounding box (1 per box)
+
+    for i in bounding:
+        #append bound box dimensions to our arrays
+        xmaxs.append(i[0])
+        ymaxs.append(i[1])
+        xmins.append(i[2])
+        ymins.append(i[3])
+        #append stuff for class and name
+        classes_text.append("tooth")
+        classes.append(1)
+    
+    tf_example = tf.train.Example(features=tf.train.Features(feature={
+        'image/height': dataset_util.int64_feature(height),
+        'image/width': dataset_util.int64_feature(width),
+        'image/filename': dataset_util.bytes_feature(filename),
+        'image/source_id': dataset_util.bytes_feature(filename),
+        'image/encoded': dataset_util.bytes_feature(encoded_image_data),
+        'image/format': dataset_util.bytes_feature(image_format),
+        'image/object/bbox/xmin': dataset_util.float_list_feature(xmins),
+        'image/object/bbox/xmax': dataset_util.float_list_feature(xmaxs),
+        'image/object/bbox/ymin': dataset_util.float_list_feature(ymins),
+        'image/object/bbox/ymax': dataset_util.float_list_feature(ymaxs),
+        'image/object/class/text': dataset_util.bytes_list_feature(classes_text),
+        'image/object/class/label': dataset_util.int64_list_feature(classes),
+    }))
+    return tf_example
+
+#might need an output folder?
+def make_tfrecord(masks, images):
+    writer = tf.python_io.TFRecordWriter(FLAGS.output_path)
+    #TODO(user): Write code to read in your dataset to examples variable
+    #go over each of the files and figure out what we need 
+    for example in examples:
+        bounding = make_boxes(example)
+        #I need to checkif the w/h we feed in is what we start with or scale to
+        tf_example = create_tf_example(example, bounding, imgDims)
+        writer.write(tf_example.SerializeToString())
+    writer.close()
