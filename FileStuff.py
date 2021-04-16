@@ -7,6 +7,8 @@ from PIL import Image
 from PIL import ImageOps
 import glob #used for iterating through files?
 import cv2
+import matplotlib
+import matplotlib.pyplot as plt
 #from scipi import ndimage, misc
 
 #using this to unpack the TIFF pictures so I can reoganize
@@ -84,3 +86,38 @@ def fill_gaps(images, masks):
         if i not in masknames:
             #delete the file if there is no mask for it
             os.remove(images + i)
+'''
+THIS MAY BE THE MOST IMPORTANT FUNCTION IN THIS STUPID FUCKING CODE
+it turns the masks into bounding boxes, because we should've made those instead
+whatever tho, we're here now and there's no point in whining over what could've
+worked better.
+'''
+#make bounding boxes for the teeth
+def make_boxes(filepath):
+    img = cv2.imread(filepath)
+    
+    # Threshold the image to extract only objects that are not black
+    # You need to use a one channel image, that's why the slice to get the first layer
+    tv, thresh = cv2.threshold(img[:,:,0], 1, 255, cv2.THRESH_BINARY)
+    
+    # Get the contours from your thresholded image
+    contours = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
+    
+    # Create a copy of the original image to display the output rectangles
+    output = img.copy()
+    # Loop through your contours calculating the bounding rectangles and plotting them
+    for c in contours:
+        x, y, w, h = cv2.boundingRect(c) #this is the only part we really need
+        cv2.rectangle(output, (x,y), (x+w, y+h), (0, 0, 255), 2)
+    # Display the output image
+    #b,g,r = cv2.split(output)
+    #frame_rgb = cv2.merge((r,g,b))
+    #plt.imshow(frame_rgb)
+    #plt.title('Boxes! :D :D')
+    plt.imshow(cv2.cvtColor(output, cv2.COLOR_BGR2RGB))
+    plt.show()
+
+#tfrecord maker
+#def make_record(target, dest):
+    
+            
