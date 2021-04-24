@@ -1,0 +1,12 @@
+#to turn on the virtual environment
+source env/bin/activate
+
+#code to make sure the path works so we can actually use the object detection AI
+export PYTHONPATH=$PYTHONPATH:'pwd':'pwd'/slim
+ 
+#code to train the AI
+python3 model_main_tf2.py --model_dir=models/faster_rcnn_inception_resnet_v2_640x640_coco17_tpu-8 --pipeline_config_path=models/faster_rcnn_inception_resnet_v2_640x640_coco17_tpu-8/pipeline.config
+
+#code to test the AI
+
+#dataset info

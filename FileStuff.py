@@ -11,6 +11,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from object_detection.utils import dataset_util
 import tensorflow.compat.v1 as tf
+import tempfile
 
 #from scipi import ndimage, misc
 
@@ -117,19 +118,11 @@ def make_boxes(filepath):
         #cv2.rectangle(output, (x,y), (x+w, y+h), (0, 0, 255), 2)
     #print(tbr)
     return tbr
-    
-
-#tfrecord maker stuff, taken from the models tensorflow repository
-#modified to work for our dataset specfically
-flags = tf.app.flags
-flags.DEFINE_string('output_path', '', 'Path to output TFRecord')
-FLAGS = flags.FLAGS
-
 
 def create_tf_example(target, imgBytes, bounding, imgDims):
     height = imgDims[0] # Image height
     width = imgDims[1] # Image width
-    filename = target # Filename of the image. Empty if image is not from file
+    filename = target.encode() # Filename of the image. Empty if image is not from file
     encoded_image_data = imgBytes # Encoded image bytes
     image_format = b'png' # b'jpeg' or b'png'
 
@@ -148,7 +141,7 @@ def create_tf_example(target, imgBytes, bounding, imgDims):
         xmins.append(i[2])
         ymins.append(i[3])
         #append stuff for class and name
-        classes_text.append("tooth")
+        classes_text.append("tooth".encode())
         classes.append(1)
     
     tf_example = tf.train.Example(features=tf.train.Features(feature={
@@ -168,10 +161,15 @@ def create_tf_example(target, imgBytes, bounding, imgDims):
     return tf_example
 
 #might need an output folder?
-def make_tfrecord(masks, images):
-    writer = tf.python_io.TFRecordWriter(FLAGS.output_path)
-    #go over each of the files and figure out what we need 
-    for example in os.listdir():
+def make_tfrecord(record_name, masks, images):
+    #make a path for our tfrecord
+    output = os.path.join(images, record_name+".tfrecord")
+    writer = tf.python_io.TFRecordWriter(output)
+    #go over each of the files and figure out what we need
+    #we itterate over masks even tho we're using the photos
+    #because otherwise there's an error where it tries to
+    #draw bounding boxes on things that don't exist
+    for example in os.listdir(masks):
         '''since the mask and the pictures have the same names
         we only know the name of one in order to operate on both
         it's simply a matter of adjusting the path (which are
@@ -179,16 +177,21 @@ def make_tfrecord(masks, images):
         #make bounding boxes for our image based off the mask
         maskpath = os.path.join(masks, example)
         bounding = make_boxes(maskpath)
+        
         #make the byte data based off the actual image not the mask
         impath = os.path.join(images, example)
         imgBytes = []
+        #get the encoded data of the image
         with open(impath, "rb") as image:
-            f = image.read()
-            imgBytes = bytearray(f)
-            #ALSO GET THE IMAGE DIMENSIONS HERE!!!!!!
-
+            imgBytes = image.read()
+        
+        #get the image width and height
+        f2 = cv2.imread(impath)
+        h, w, c = f2.shape
+        imgDims = [h, w]
         
         #I need to checkif the w/h we feed in is what we start with or scale to
         tf_example = create_tf_example(example, imgBytes, bounding, imgDims)
         writer.write(tf_example.SerializeToString())
+    #close the writer since we've finished
     writer.close()
