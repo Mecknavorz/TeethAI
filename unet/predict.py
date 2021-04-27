@@ -29,7 +29,7 @@ def mask_parse(mask):
 if __name__ == "__main__":
     ## Dataset
     path = "dataset/"
-    batch_size = 20
+    batch_size = 8
     (train_x, train_y), (valid_x, valid_y), (test_x, test_y) = load_data(path)
 
     test_dataset = tf_dataset(test_x, test_y, batch=batch_size)
@@ -56,4 +56,4 @@ if __name__ == "__main__":
             mask_parse(y_pred) * 255.0
         ]
         image = np.concatenate(all_images, axis=1)
-        cv2.imwrite(f"testing-results/{i}.png", image)
+        cv2.imwrite(f"results/{i}.png", image)
