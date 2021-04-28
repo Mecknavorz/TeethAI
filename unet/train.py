@@ -17,6 +17,13 @@ def iou(y_true, y_pred):
         return x
     return tf.numpy_function(f, [y_true, y_pred], tf.float32)
 
+def saveTFLiteModel(model):
+    converter = tf.lite.TFLiteConverter.from_keras_model(model)
+    tfliteModel = converter.convert()
+
+    with open('model/model.tflite', 'wb') as f:
+        f.write(tfliteModel)
+
 if __name__ == "__main__":
     ## Dataset
     path = "dataset/"

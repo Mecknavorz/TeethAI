@@ -6,7 +6,7 @@ import tensorflow as tf
 from tensorflow.keras.utils import CustomObjectScope
 from tqdm import tqdm
 from data import load_data, tf_dataset
-from train import iou
+from train import iou, saveTFLiteModel
 
 def read_image(path):
     x = cv2.imread(path, cv2.IMREAD_COLOR)
@@ -42,6 +42,7 @@ if __name__ == "__main__":
         model = tf.keras.models.load_model("model/model.h5")
 
     model.evaluate(test_dataset, steps=test_steps)
+    saveTFLiteModel(model);
 
     for i, (x, y) in tqdm(enumerate(zip(test_x, test_y)), total=len(test_x)):
         x = read_image(x)
