@@ -8,5 +8,9 @@ export PYTHONPATH=$PYTHONPATH:'pwd':'pwd'/slim
 python3 model_main_tf2.py --model_dir=models/faster_rcnn_inception_resnet_v2_640x640_coco17_tpu-8 --pipeline_config_path=models/faster_rcnn_inception_resnet_v2_640x640_coco17_tpu-8/pipeline.config
 
 #code to test the AI
+python3 model_main_tf2.py --model_dir=models/faster_rcnn_inception_resnet_v2_640x640_coco17_tpu-8 --pipeline_config_path=models/faster_rcnn_inception_resnet_v2_640x640_coco17_tpu-8/pipeline.config --checkpoint_dir=models/faster_rcnn_inception_resnet_v2_640x640_coco17_tpu-8
 
-#dataset info
+oom 22195200
+oom 11097600
+
+3,219,783,680
