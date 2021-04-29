@@ -1,16 +1,14 @@
 #to turn on the virtual environment
+#this assumes the python venv is named "env", if it's not name it something else
 source env/bin/activate
 
-#code to make sure the path works so we can actually use the object detection AI
-export PYTHONPATH=$PYTHONPATH:'pwd':'pwd'/slim
- 
-#code to train the AI
+#terminal command to train the AI 
 python3 model_main_tf2.py --model_dir=models/faster_rcnn_inception_resnet_v2_640x640_coco17_tpu-8 --pipeline_config_path=models/faster_rcnn_inception_resnet_v2_640x640_coco17_tpu-8/pipeline.config
 
-#code to test the AI
+#terminal command to train and validate the AI
+#this needs to be run after the previous command
 python3 model_main_tf2.py --model_dir=models/faster_rcnn_inception_resnet_v2_640x640_coco17_tpu-8 --pipeline_config_path=models/faster_rcnn_inception_resnet_v2_640x640_coco17_tpu-8/pipeline.config --checkpoint_dir=models/faster_rcnn_inception_resnet_v2_640x640_coco17_tpu-8
 
-oom 22195200
-oom 11097600
+#terminal command to save the model we've trained/validated
+python3 exporter_main_v2.py --input_type image_tensor --pipeline_config_path /home/tzara/SeniorDesign/TeethAI/training_demo/models/faster_rcnn_inception_resnet_v2_640x640_coco17_tpu-8/pipeline.config --trained_checkpoint_dir /home/tzara/SeniorDesign/TeethAI/training_demo/models/faster_rcnn_inception_resnet_v2_640x640_coco17_tpu-8 --output_directory /home/tzara/SeniorDesign/TeethAI/training_demo/exported-models/teeth_seg
 
-3,219,783,680

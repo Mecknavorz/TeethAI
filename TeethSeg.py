@@ -8,70 +8,97 @@
 '''
 imports and stuff
 '''
-#file stuff and misc
-import tensorflow as tf
-import numpy as np #helps with image processing
-import tempfile
+#file stuff
+import os
+os.environ['TF-CPP_MIN_LOG_LEVEL'] = '2' #basically a way to cut out errors that aren't important (probably)
+import pathlib
 import time
+import warnings
+warnings.filterwarnings("ignore")
 
-#seed setting stuff
-mlseed = 666 #set the seed
-from numpy.random import seed
-np.random.seed(mlseed)
-import random as rn
-rn.seed(mlseed)
-import os #for system calls
-os.environ['PYTHONHASHSEED']=str(mlseed) #more seed control
+#AI stuff
+import numpy as np
+import tensorflow as tf
+tf.get_logger().setLevel('ERROR') #more stuff to ignore small errors
+import object_detection.utils import label_map_util
+import object_detection.utils import visualization_utils as viz_utils
 
-#for most of the AI stuff
-import cv2 #the convolutional netwrok libary iirc CHECK THIS
-from tensorflow import keras #used for a lot of the heavy lifting in terms of CNN stuff
-import tensorflow_hub as hub
-from six.moves.urllib.request import urlopen
-from six import BytesIO
-import scipy.misc
-#from sklearn.metrics import roc_curve
-#from sklearn.metrics import auc
-#these are for the object detection stuff, not sure if I need this
-'''
-from object_detection.utils import label_map_util
-from object_detection.utils import config_util
-from object_detection.utils import visualization_utils as viz_utils
-from object_detection.utils import colab_utils
-from object_detection.utils import model_builder
-'''
-
-#these two are for help with the dataset
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.preprocessing import image
-
-#for plotting and giving us visual feedback w/the training process
-import matplotlib
-import matplotlib.pyplot as plt
-#%matplotlib linline
-
-#for drawing on the images
+#image stuff
 from PIL import Image
-from PIL import ImageColor
-from PIL import ImageDraw
-from PIL import ImageFont
-from PIL import ImageOps
+import matplotlib.pyplot as plt
 
 '''
 load model and config
 '''
-#load the model based off the config the paper used, we can then modify the parameters to match
-#I think I have to load the model detection AI in this way
-model = tf.keras.models.model_from_config("/home/tzara/SeniorDesign/TeethAI/teet_seg.config", custom_objects=None)
-#the AI in the paper might need a second network, leaving this here just in case
-#model2 = tf.keras.models.clone_model(model1, input_tensors=None, clone_function=None)
+#stuff to make sure the GPUs get used, allowing us to do things better faster stronger etc
+#(namely memory usage stuff)
+gpus = tf.config.experimental.list_phyiscal_devices('GPU')
+for gpu in gpus:
+    tf.config.experimental.set_memory_growth(gpu, True)
 
+#this path needs to be set to the images we want to predict things with
+#demo_images is a folder I made within the AI's environment to put some sample images to test on
+#might remove this path and have it input by function
+IMAGE_PATHS = path.join(path.dirname(__file__), "/training_demo/demo_images")
+#the path to our model
+PATH_TO_MODEL_DIR = path.join(path.dirname(__file__), "/training_demo/exported-models/teeth_seg")
+#set up the labels
+PATH_TO_LABELS = path.join(path.dirname(__file__), "/home/tzara/SeniorDesign/TeethAI/training_demo/annotations/label_map.pbtxt")
+#set up saved model
+PATH_TO_SAVED_MODEL = PATH_TO_MODEL_DIR + "/saved_model"
+
+#actual stuff to load the model
+print("Loading model...", end="")
+start_time = time.time()
+#load saved model and build the detection function
+detect_fn = tf.saved_model.load(PATH_TO_SAVED_MODEL)
+#print out how long it took to load
+end_time = time.time()
+elapsed_time = end_time - start_time
+print("Done! Took {} seconds.".format(elapsed_time))
+
+#load the label map
+category_index = labe_map_util.create_category_index_from_labelmap(PATH_TO_LABELS, use_display_name=True)
 
 '''
-training and validation stuff
+predicion code
 '''
+#just turn an image into a numpy array
+def img2numpy(path):
+    return np.array(Image.open(path))
 
+for image_path in IMAGE_PATHS:
+    print("Runninger interference for {}...".format(image_path), end="")
+    image_np = img2numpy(image_path)
+    #input needs to be a tensor
+    input_tensor = tf.convert_to_tensor(image_np)
+    #the model needs a batch so we add a new axis
+    input_tensor = input_tensor[tf.newaxis, ...]
+    detections = detect_fn(input_tensor)
 
+    num_detections = int(detections.pop("num_detections"))
+    detections = {key: value[0, :num_detections].numpy() for key, value in detections.items()}
+    detections["num_detections"] = num_detections
+
+    detections["detection_classes"] = detections["detection_classes"].astype(np.int64)
+
+    image_np_with_detections = image_np.copy()
+
+    viz_utils.visualize_boxes_and_labels_on_image_array(
+        image_np_with_detections,
+        detections["detection_boxes"],
+        detections["detection_classes"],
+        detections["detection_scores"],
+        category_index,
+        use_normalized_coordinates=True,
+        max_boxes_to_draw=200, #probably crank this down
+        min_score_thresh=.30, #also tamper with this if it's too high/low
+        agnostic_mode=False)
+
+    plt.figure()
+    plt.imshow(image_np_with_detections)
+    print('Done')
+plt.show()
 
 '''
 save the model so we can use it in the app
