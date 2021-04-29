@@ -20,11 +20,13 @@ warnings.filterwarnings("ignore")
 import numpy as np
 import tensorflow as tf
 tf.get_logger().setLevel('ERROR') #more stuff to ignore small errors
-import object_detection.utils import label_map_util
-import object_detection.utils import visualization_utils as viz_utils
+from object_detection.utils import label_map_util
+from object_detection.utils import visualization_utils as viz_utils
 
 #image stuff
 from PIL import Image
+import matplotlib
+matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 
 '''
@@ -32,33 +34,31 @@ load model and config
 '''
 #stuff to make sure the GPUs get used, allowing us to do things better faster stronger etc
 #(namely memory usage stuff)
-gpus = tf.config.experimental.list_phyiscal_devices('GPU')
-for gpu in gpus:
-    tf.config.experimental.set_memory_growth(gpu, True)
+#gpus = tf.config.list_logical_devices("GPU")
+#for gpu in gpus:
+    #tf.config.experimental.set_memory_growth(gpu, True)
 
 #this path needs to be set to the images we want to predict things with
 #demo_images is a folder I made within the AI's environment to put some sample images to test on
 #might remove this path and have it input by function
-IMAGE_PATHS = path.join(path.dirname(__file__), "/training_demo/demo_images")
-#the path to our model
-PATH_TO_MODEL_DIR = path.join(path.dirname(__file__), "/training_demo/exported-models/teeth_seg")
+IMAGE_PATHS = os.path.join("/home/tzara/SeniorDesign/TeethAI/training_demo/demo_images")
 #set up the labels
-PATH_TO_LABELS = path.join(path.dirname(__file__), "/home/tzara/SeniorDesign/TeethAI/training_demo/annotations/label_map.pbtxt")
-#set up saved model
-PATH_TO_SAVED_MODEL = PATH_TO_MODEL_DIR + "/saved_model"
+PATH_TO_LABELS = os.path.join(os.path.dirname(__file__), "/training_demo/annotations/label_map.pbtxt")
 
 #actual stuff to load the model
 print("Loading model...", end="")
 start_time = time.time()
 #load saved model and build the detection function
-detect_fn = tf.saved_model.load(PATH_TO_SAVED_MODEL)
+#FOR WHATEVER CTHULHU FORSAKEN REASON, THIS PICKY BITCH WILL ACCEPT NOTHING LESS THAN THE ABSOLUTE FILE PATH
+#WHY? I DON"T KNOW! BUT THAT"S THE WAY THE COOKIE CRUMBLES I GUESS
+detect_fn = tf.saved_model.load("/home/tzara/SeniorDesign/TeethAI/training_demo/exported-models/teeth_seg/saved_model/")
 #print out how long it took to load
 end_time = time.time()
 elapsed_time = end_time - start_time
 print("Done! Took {} seconds.".format(elapsed_time))
 
 #load the label map
-category_index = labe_map_util.create_category_index_from_labelmap(PATH_TO_LABELS, use_display_name=True)
+category_index = label_map_util.create_category_index_from_labelmap("/home/tzara/SeniorDesign/TeethAI/training_demo/annotations/label_map.pbtxt", use_display_name=True)
 
 '''
 predicion code
@@ -67,7 +67,10 @@ predicion code
 def img2numpy(path):
     return np.array(Image.open(path))
 
-for image_path in IMAGE_PATHS:
+#for image_path in IMAGE_PATHS: #this was the original code but it doesn't work
+IM2 = os.listdir(IMAGE_PATHS)
+for im2 in IM2:
+    image_path = os.path.join(IMAGE_PATHS, im2)
     print("Runninger interference for {}...".format(image_path), end="")
     image_np = img2numpy(image_path)
     #input needs to be a tensor
@@ -91,17 +94,19 @@ for image_path in IMAGE_PATHS:
         detections["detection_scores"],
         category_index,
         use_normalized_coordinates=True,
-        max_boxes_to_draw=200, #probably crank this down
-        min_score_thresh=.30, #also tamper with this if it's too high/low
+        max_boxes_to_draw=20, #probably crank this down
+        min_score_thresh=.45, #also tamper with this if it's too high/low
         agnostic_mode=False)
 
     plt.figure()
     plt.imshow(image_np_with_detections)
     print('Done')
-plt.show()
+    plt.show()
+
 
 '''
 save the model so we can use it in the app
+MIGHT NEED TO MOVE THIS TO A NEW FILE
 '''
 #save and convert the file to tflite
 def save_and_store(filepath, name):
