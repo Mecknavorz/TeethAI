@@ -51,7 +51,7 @@ start_time = time.time()
 #load saved model and build the detection function
 #FOR WHATEVER CTHULHU FORSAKEN REASON, THIS PICKY BITCH WILL ACCEPT NOTHING LESS THAN THE ABSOLUTE FILE PATH
 #WHY? I DON"T KNOW! BUT THAT"S THE WAY THE COOKIE CRUMBLES I GUESS
-detect_fn = tf.saved_model.load("/home/tzara/SeniorDesign/TeethAI/training_demo/exported-models/teeth_seg/saved_model/")
+detect_fn = tf.saved_model.load("/home/tzara/SeniorDesign/TeethAI/training_demo/exported-models/teeth_seg2/saved_model/")
 #print out how long it took to load
 end_time = time.time()
 elapsed_time = end_time - start_time
@@ -94,8 +94,8 @@ for im2 in IM2:
         detections["detection_scores"],
         category_index,
         use_normalized_coordinates=True,
-        max_boxes_to_draw=20, #probably crank this down
-        min_score_thresh=.45, #also tamper with this if it's too high/low
+        max_boxes_to_draw=30, #probably crank this down
+        min_score_thresh=.20, #also tamper with this if it's too high/low
         agnostic_mode=False)
 
     plt.figure()

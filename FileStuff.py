@@ -8,6 +8,7 @@ from PIL import ImageOps
 import glob #used for iterating through files?
 import cv2
 import matplotlib
+matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 from object_detection.utils import dataset_util
 import tensorflow.compat.v1 as tf
@@ -114,9 +115,13 @@ def make_boxes(filepath):
     # Loop through your contours calculating the bounding rectangles and plotting them
     for c in contours:
         x, y, w, h = cv2.boundingRect(c) #this is the only part we really need
-        tbr.append([x, y, (x-w), (y-h)])
+        tbr.append([x, y, (x+w), (y+h)])
+        #uncomment this line if u want to print it
         #cv2.rectangle(output, (x,y), (x+w, y+h), (0, 0, 255), 2)
+    #this code is for helping debug
     #print(tbr)
+    #plt.imshow(cv2.cvtColor(output, cv2.COLOR_BGR2RGB))
+    #plt.show()
     return tbr
 
 def create_tf_example(target, imgBytes, bounding, imgDims):
@@ -161,9 +166,9 @@ def create_tf_example(target, imgBytes, bounding, imgDims):
     return tf_example
 
 #might need an output folder?
-def make_tfrecord(masks, images):
+def make_tfrecord(record_name, masks, images):
     #make a path for our tfrecord
-    output = os.path.join(images, "labels.tfrecord")
+    output = os.path.join(images, record_name+".tfrecord")
     writer = tf.python_io.TFRecordWriter(output)
     #go over each of the files and figure out what we need
     #we itterate over masks even tho we're using the photos

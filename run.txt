@@ -12,3 +12,27 @@ python3 model_main_tf2.py --model_dir=models/faster_rcnn_inception_resnet_v2_640
 #terminal command to save the model we've trained/validated
 python3 exporter_main_v2.py --input_type image_tensor --pipeline_config_path /home/tzara/SeniorDesign/TeethAI/training_demo/models/faster_rcnn_inception_resnet_v2_640x640_coco17_tpu-8/pipeline.config --trained_checkpoint_dir /home/tzara/SeniorDesign/TeethAI/training_demo/models/faster_rcnn_inception_resnet_v2_640x640_coco17_tpu-8 --output_directory /home/tzara/SeniorDesign/TeethAI/training_demo/exported-models/teeth_seg
 
+#for converting the saved model to a tflite file
+#GARBAGE, at least for now
+tflite_convert \
+--saved_model_dir=/home/tzara/SeniorDesign/TeethAI/training_demo/exported-models/teeth_seg/saved_model/ \
+--graph_def_file=/home/tzara/SeniorDesign/TeethAI/training_demo/exported-models/teeth_seg/saved_model/ \
+--output_file=/home/tzara/SeniorDesign/TeethAI/training_demo/exported-modes/teethseg.tflite \
+--output_format=TFLITE \
+--input_arrays=normalized_input_image_tensor \
+--input_shapes=1,300,300,3 \
+--inference_type=FLOAT \
+--output_arrays="TFLite_Detection_PostProcess,TFLite_Detection_PostProcess:1,TFLite_Detection_PostProcess:2,TFLite_Detection_PostProcess:3" \
+--allow_custom_ops
+
+
+#FOR THE SECOND NETWORK
+#terminal command to train the AI 
+python3 model_main_tf2.py --model_dir=models/ssd_mobilenet_v2_fpnlite_320x320_coco17_tpu-8 --pipeline_config_path=models/ssd_mobilenet_v2_fpnlite_320x320_coco17_tpu-8/pipeline.config
+
+#terminal command to train and validate the AI
+#this needs to be run after the previous command
+python3 model_main_tf2.py --model_dir=models/faster_rcnn_inception_resnet_v2_640x640_coco17_tpu-8 --pipeline_config_path=models/faster_rcnn_inception_resnet_v2_640x640_coco17_tpu-8/pipeline.config --checkpoint_dir=models/faster_rcnn_inception_resnet_v2_640x640_coco17_tpu-8
+
+#terminal command to save the model we've trained/validated
+python3 exporter_main_v2.py --input_type image_tensor --pipeline_config_path /home/tzara/SeniorDesign/TeethAI/training_demo/models/ssd_mobilenet_v2_fpnlite_320x320_coco17_tpu-8/pipeline.config  --trained_checkpoint_dir /home/tzara/SeniorDesign/TeethAI/training_demo/models/ssd_mobilenet_v2_fpnlite_320x320_coco17_tpu-8 --output_directory /home/tzara/SeniorDesign/TeethAI/training_demo/exported-models/teeth_seg2
