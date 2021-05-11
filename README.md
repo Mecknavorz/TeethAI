@@ -1,23 +1,25 @@
 # TeethAI
 Teeth AI for senior design project
 
-## Main Directory: 
-# Some Important Files in the Main directory include:
-# FileStuff.py
+## Main Directory 
+
+## Some Important Files in the Main directory include:
+
+#### FileStuff.py
 a small python file with little commands to help edit files for managing the dataset and other things. The most important functions in it are as follows:
 - `makeboxes(filepath)`: **this the function that turns an image at a file path into a mask w/bounding boxes (when fully un-commented) or returns the values for the boudnig boxes of the masks by default**
 - `make_tfrecord(record_name, masks, images)`: this function is used to turn the datasets into `.tfrecord` files that the object detection API a can actually use
 
-# TeethDetection.py
+#### TeethDetection.py
 A binary classifier originally made to test out TensorFlow functions. Ideally it tells you whether or not teeth are visible in an image, results were shoddy.
 
-# TeethSeg.py
+#### TeethSeg.py
 This is the file used to turn images in [`demo_images`](/training_demo/demo_images) into annotated images w/bounding boxes, if the faster R-CNN worked properly this would produce a comprehensible output but unfortunately it mostly returns gibberish. Some code to make note of in this file is:
 - `max_boxes_to_draw`: which decides the maximum number of boxes the AI is allowed to guess are there
 - `min_score_thresh`: which is the minimum score a prediction box is allowed to have to be drawn
 Tampering with either of these settings will allow for more fine turning of the output, if the faster R-CNN actually worked in the first place.
 
-# run.txt
+#### run.txt
 This file contains the commands which need to be run (ideally) in a virtual environment to actually preform training and testing operations on our TensorFlow Model
 
 ## dataset
