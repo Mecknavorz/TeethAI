@@ -2,8 +2,7 @@
 Teeth AI for senior design project
 
 ## Main Directory 
-
-## Some Important Files in the Main directory include:
+Some Important Files in the Main directory include:
 
 #### FileStuff.py
 a small python file with little commands to help edit files for managing the dataset and other things. The most important functions in it are as follows:
@@ -22,8 +21,10 @@ Tampering with either of these settings will allow for more fine turning of the 
 #### run.txt
 This file contains the commands which need to be run (ideally) in a virtual environment to actually preform training and testing operations on our TensorFlow Model
 
+
 ## dataset
 This Folder contains all of the images used for training both AIs used in this project, most of them are from the [ODSI-DB](https://sites.uef.fi/spectral/odsi-db/), while the remain were provided by our class sponsor.
+
 
 ## training_demo
 This Folder contains all the environment stuff needed to custom train TensorFlow Object Detection API Models. As it stands the only one currently downloaded and expirmented on is the faster R-CNN. It is set up in such a way that it would not be difficult to custom train other models as well. The faster R-CNN as well as other pre-trained models can be found [here](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf2_detection_zoo.md). The significance of each of the folders is as follows
@@ -35,6 +36,7 @@ This Folder contains all the environment stuff needed to custom train TensorFlow
   -`pipeline.config`: Controls basically all of the aspects of training from batch size, to number of training epochs to location of the datasets and tfrecords. Every model that we custom train needs to have their own specialized version of this file.
 - [`pre-trained-models`](training_demo/pre-trained-model): contains the various pretrained models we want to custom train on. Models can be downloaded from [here](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf2_detection_zoo.md)
 It also contains the two programs which we run in a virtual environment in order to actually train and export the AI, for more information look at `run.txt` in main.
+
 
 ## UNet
 UNet is the AI found by [Joseph Norman](https://github.com/josephnormandev), and created by Olaf Ronneberger at the Computer Science Department of the University of Freiburg, Germany, for more information on how UNet works [check out the blogpost here](https://idiotdeveloper.com/polyp-segmentation-using-unet-in-tensorflow-2/).
