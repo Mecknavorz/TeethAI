@@ -30,6 +30,7 @@ if __name__ == "__main__":
     ## Dataset
     path = "dataset/"
     batch_size = 8
+    epoch = 30;
     (train_x, train_y), (valid_x, valid_y), (test_x, test_y) = load_data(path)
 
     test_dataset = tf_dataset(test_x, test_y, batch=batch_size)
@@ -39,10 +40,10 @@ if __name__ == "__main__":
         test_steps += 1
 
     with CustomObjectScope({'iou': iou}):
-        model = tf.keras.models.load_model("model/model.h5")
+        model = tf.keras.models.load_model(f"model{epoch}/model.h5")
 
     model.evaluate(test_dataset, steps=test_steps)
-    saveTFLiteModel(model);
+    #saveTFLiteModel(model);
 
     for i, (x, y) in tqdm(enumerate(zip(test_x, test_y)), total=len(test_x)):
         x = read_image(x)
@@ -57,4 +58,4 @@ if __name__ == "__main__":
             mask_parse(y_pred) * 255.0
         ]
         image = np.concatenate(all_images, axis=1)
-        cv2.imwrite(f"results/{i}.png", image)
+        cv2.imwrite(f"results{epoch}/{i}.png", image)
