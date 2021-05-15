@@ -10,6 +10,6 @@ The dataset CVC-ClinicDB (CVC-612) is not complete. Download it from the <a href
 
 ## Results
 The images given below are in the sequence: (1) Input Image, (2) Ground Truth, (3) Predicted Mask <br/><br/>
-<img src="results/1.png">
-<img src="results/2.png">
-<img src="results/3.png">
+<img src="results20/1.png">
+<img src="results20/2.png">
+<img src="results20/3.png">
